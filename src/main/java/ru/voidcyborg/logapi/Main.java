@@ -1,4 +1,6 @@
-package ru.voidcyborg;public class Main {
+package ru.voidcyborg.logapi;
+
+public class Main {
     public static void main(String[] args) {
         System.out.println("Hello world!");
     }
