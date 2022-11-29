@@ -3,11 +3,25 @@ package ru.voidcyborg.logapi.logger;
 import ru.voidcyborg.logapi.appender.Appender;
 import ru.voidcyborg.logapi.level.LogLevel;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 public final class Logger {
+
+    private static final SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyyy");
+    private static final SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
+
+    static {
+        date.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+        time.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
+    }
+
 
     private final String name;
     private final Appender appender;
     private final LogLevel level = LoggerFactory.getLogLevel();
+
 
     private final boolean fatal = shouldLog(LogLevel.FATAL);
     private final boolean error = shouldLog(LogLevel.ERROR);
@@ -87,6 +101,17 @@ public final class Logger {
 
     public void fatal(String message, Object obj) {
         if (!fatal) return;
+
+    }
+
+    private String format(String type, String message, Throwable throwable) {
+        Date now = new Date();
+
+
+        return date.format(now) + " " + time.format(now) + " " + Thread.currentThread().getName() +
+    }
+
+    private String format(String type, String message, Object obj) {
 
     }
 
