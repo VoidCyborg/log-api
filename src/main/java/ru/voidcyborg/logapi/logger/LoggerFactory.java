@@ -18,20 +18,22 @@ public final class LoggerFactory {
     }
 
     public static LoggerGroup getLoggerGroup() {
-        Class<?> clazz = //TODO получение класса где был вызван логгер.
-        if (clazz == null) return defaultGroup;
-        return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);
+        //   Class<?> clazz = //TODO получение класса где был вызван логгер.
+        // if (clazz == null) return defaultGroup;
+        //  return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);
+        return null;
     }
 
     public static LoggerGroup getLoggerGroup(Appender appender) {
         if (appender == null) appender = defaultAppender;
 
-        Class<?> clazz = //TODO получение класса где был вызван логгер.
+    /*    Class<?> clazz = //TODO получение класса где был вызван логгер.
         if (clazz == null) return defaultGroup;
-        return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);
+        return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);*/
+        return null;
     }
 
     private static LogLevel initSettings() {
-
+        return LogLevel.ALL;//TODO
     }
 }

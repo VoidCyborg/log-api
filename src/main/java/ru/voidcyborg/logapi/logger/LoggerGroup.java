@@ -11,12 +11,13 @@ public final class LoggerGroup {
     private final Class<?> parentClass;
     private final Appender appender;
     private final Map<String, Logger> loggers = new ConcurrentHashMap<>();
-    private final Logger defaultLogger = loggers.computeIfAbsent(LoggerGroup.class.getSimpleName(), Logger::new);
+    private final Logger defaultLogger;
 
 
     LoggerGroup(Class<?> parent, Appender appender) {
         this.parentClass = parent;
         this.appender = appender;
+        this.defaultLogger = loggers.computeIfAbsent(LoggerGroup.class.getSimpleName(), name -> new Logger(name, this.appender));
     }
 
     public Class<?> getParentClass() {
@@ -24,7 +25,7 @@ public final class LoggerGroup {
     }
 
 
-    public Logger getLogger() {
+   /* public Logger getLogger() {
 
     }
 
@@ -35,5 +36,5 @@ public final class LoggerGroup {
                 defaultLogger.info("Created new Logger(" + string + ")");
 
             });
-    }
+    }*/
 }

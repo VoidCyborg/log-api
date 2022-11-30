@@ -5,12 +5,13 @@ import ru.voidcyborg.logapi.level.LogLevel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 import java.util.TimeZone;
 
 public final class Logger {
 
-    private static final SimpleDateFormat date = new SimpleDateFormat("dd-MM-yyyy");
-    private static final SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat date = new SimpleDateFormat("[dd-MM-yyyy]");
+    private static final SimpleDateFormat time = new SimpleDateFormat("[HH:mm:ss]");
 
     static {
         date.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
@@ -31,7 +32,7 @@ public final class Logger {
     private final boolean trace = shouldLog(LogLevel.TRACE);
 
 
-    Logger(String name, Appender appender) {
+    public Logger(String name, Appender appender) {//TODO remove public
         this.name = name;
         this.appender = appender;
     }
@@ -66,7 +67,11 @@ public final class Logger {
 
     public void info(String message) {
         if (!info) return;
-
+        try {
+            this.appender.append(format(LogLevel.INFO.toString(), message, null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void info(String message, Object obj) {
@@ -106,13 +111,25 @@ public final class Logger {
 
     private String format(String type, String message, Throwable throwable) {
         Date now = new Date();
+        String[] clazzAndName = getClassAndName(3);
 
-
-        return date.format(now) + " " + time.format(now) + " " + Thread.currentThread().getName() +
+        return date.format(now) + time.format(now) + "[" + type + "][" + Thread.currentThread().getName() + "][" + clazzAndName[0] + "][" + clazzAndName[1] + "] " + message;
     }
 
-    private String format(String type, String message, Object obj) {
+   /* private String format(String type, String message, Object obj) {
 
+    }*/
+    //TODO
+
+    private static String[] getClassAndName(int skip) {
+        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
+        Optional<StackWalker.StackFrame> stackFrame = walker.walk(frames -> frames
+                .skip(skip)
+                .findFirst());
+
+        return stackFrame.map(frame -> new String[]{frame.getDeclaringClass().getSimpleName(), frame.getMethodName()}).
+                orElse(new String[]{"#unknown", "#unknown"});
     }
 
 
