@@ -49,4 +49,14 @@ public final class LoggerFactory {
         return stackFrame.map(frame -> new String[]{frame.getFileName(), frame.getMethodName(), String.valueOf(frame.getLineNumber())}).
                 orElse(new String[]{"#unknown", "#unknown", "-1"});
     }
+
+    public static Class<?> getClass(int skip) {
+        StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+
+        Optional<StackWalker.StackFrame> stackFrame = walker.walk(frames -> frames
+                .skip(skip)
+                .findFirst());
+
+        return stackFrame.map(StackWalker.StackFrame::getDeclaringClass).orElse(null);
+    }
 }
