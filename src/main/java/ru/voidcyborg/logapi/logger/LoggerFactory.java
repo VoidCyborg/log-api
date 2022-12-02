@@ -10,16 +10,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class LoggerFactory {
 
-    private static final Map<Class<?>, LoggerGroup> loggerGroups = new ConcurrentHashMap<>();
+    private static final Map<String, LoggerGroup> loggerGroups = new ConcurrentHashMap<>();
     private static final Appender defaultAppender = new ConsoleAppender();
     private static final LogLevel level = initSettings();
+
+    static {
+        loggerGroups.put("null", new LoggerGroup("null", defaultAppender));
+    }
 
     public static LogLevel getLogLevel() {
         return level;
     }
 
     public static LoggerGroup getLoggerGroup(String name) {
-        //   Class<?> clazz = //TODO получение класса где был вызван логгер.
+        return loggerGroups.computeIfAbsent(name)
         // if (clazz == null) return defaultGroup;
         //  return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);
         return null;

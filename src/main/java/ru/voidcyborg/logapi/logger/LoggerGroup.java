@@ -8,33 +8,33 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class LoggerGroup {
 
-    private final Class<?> parentClass;
+    private final String name;
     private final Appender appender;
-    private final Map<String, Logger> loggers = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
     private final Logger defaultLogger;
 
 
-    LoggerGroup(Class<?> parent, Appender appender) {
-        this.parentClass = parent;
+    LoggerGroup(String name, Appender appender) {
+        this.name = name;
         this.appender = appender;
-        this.defaultLogger = loggers.computeIfAbsent(LoggerGroup.class.getSimpleName(), name -> new Logger(name, this.appender));
+        this.defaultLogger = new Logger(this.appender);
+        this.loggers.put(LoggerGroup.class, this.defaultLogger);
     }
 
-    public Class<?> getParentClass() {
-        return parentClass;
+    public Logger getLogger() {
+        Class<?> frame = LoggerFactory.getClass(2);
+        if (frame == null) {
+            this.defaultLogger.error("Failed create logger by stack");
+            return this.defaultLogger;
+        }
+
+        return loggers.computeIfAbsent(frame, clazz -> {
+            defaultLogger.info("Created new logger - " + clazz.getSimpleName());
+            return new Logger(this.appender);
+        });
     }
 
-
-   /* public Logger getLogger() {
-
+    public String getName() {
+        return name;
     }
-
-    public Logger getLogger(String string) {
-        if (string == null) return defaultLogger;
-        if (string.equals(LoggerGroup.class.getSimpleName()) || string.equalsIgnoreCase(Lo))
-            return loggers.computeIfAbsent(string, name -> {
-                defaultLogger.info("Created new Logger(" + string + ")");
-
-            });
-    }*/
 }
