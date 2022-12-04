@@ -5,18 +5,20 @@ import ru.voidcyborg.logapi.level.LogLevel;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
 public final class Logger {
 
     private static final SimpleDateFormat date = new SimpleDateFormat("[dd-MM-yyyy]");
     private static final SimpleDateFormat time = new SimpleDateFormat("[HH:mm:ss]");
+
     static {
         date.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
         time.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
     }
 
-    private final Appender appender;
+    private final Set<Appender> appenders;
     private final LogLevel level = LoggerFactory.getLogLevel();
 
     private final boolean fatal = shouldLog(LogLevel.FATAL);
@@ -26,8 +28,8 @@ public final class Logger {
     private final boolean debug = shouldLog(LogLevel.DEBUG);
     private final boolean trace = shouldLog(LogLevel.TRACE);
 
-    public Logger(Appender appender) {//TODO remove public
-        this.appender = appender;
+    public Logger(Set<Appender> appenders) {//TODO remove public
+        this.appenders = appenders;
     }
 
 
@@ -41,7 +43,12 @@ public final class Logger {
     public void trace(String message) {
         if (!trace) return;
         try {
-            this.appender.append(format(LogLevel.TRACE.toString(), message, null));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.TRACE.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,7 +57,12 @@ public final class Logger {
     public void trace(String message, Object obj) {
         if (!trace) return;
         try {
-            this.appender.append(format(LogLevel.TRACE.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.TRACE.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,7 +71,12 @@ public final class Logger {
     public void debug(String message) {
         if (!debug) return;
         try {
-            this.appender.append(format(LogLevel.DEBUG.toString(), message, null));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.DEBUG.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,7 +85,12 @@ public final class Logger {
     public void debug(String message, Object obj) {
         if (!debug) return;
         try {
-            this.appender.append(format(LogLevel.DEBUG.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.DEBUG.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,7 +99,12 @@ public final class Logger {
     public void info(String message) {
         if (!info) return;
         try {
-            this.appender.append(format(LogLevel.INFO.toString(), message, null));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.INFO.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +113,12 @@ public final class Logger {
     public void info(String message, Object obj) {
         if (!info) return;
         try {
-            this.appender.append(format(LogLevel.INFO.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.INFO.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,7 +127,12 @@ public final class Logger {
     public void warn(String message) {
         if (!warn) return;
         try {
-            this.appender.append(format(LogLevel.WARN.toString(), message, null));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.WARN.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,7 +141,12 @@ public final class Logger {
     public void warn(String message, Object obj) {
         if (!warn) return;
         try {
-            this.appender.append(format(LogLevel.WARN.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.WARN.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,16 +155,28 @@ public final class Logger {
     public void error(String message) {
         if (!error) return;
         try {
-            this.appender.append(format(LogLevel.ERROR.toString(), message, null));
-        } catch (Exception e) {
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.ERROR.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
+        } catch (
+                Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void error(String message, Object obj) {
         if (!error) return;
         try {
-            this.appender.append(format(LogLevel.ERROR.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.ERROR.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -131,7 +185,12 @@ public final class Logger {
     public void fatal(String message) {
         if (!fatal) return;
         try {
-            this.appender.append(format(LogLevel.FATAL.toString(), message, null));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.FATAL.toString(), message, null));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -140,7 +199,12 @@ public final class Logger {
     public void fatal(String message, Object obj) {
         if (!fatal) return;
         try {
-            this.appender.append(format(LogLevel.FATAL.toString(), message, obj));
+            for (Appender appender : appenders) {
+                try {
+                    appender.append(format(LogLevel.FATAL.toString(), message, obj));
+                } catch (Exception ignore) {
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

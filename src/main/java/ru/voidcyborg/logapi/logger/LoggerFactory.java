@@ -12,30 +12,21 @@ public final class LoggerFactory {
 
     private static final Map<String, LoggerGroup> loggerGroups = new ConcurrentHashMap<>();
     private static final Appender defaultAppender = new ConsoleAppender();
-    private static final LogLevel level = initSettings();
+    private static final LoggerGroup defaultLoggerGroup = loggerGroups.computeIfAbsent("null", name -> new LoggerGroup(name, defaultAppender));
 
-    static {
-        loggerGroups.put("null", new LoggerGroup("null", defaultAppender));
-    }
+    private static final LogLevel level = initSettings();
 
     public static LogLevel getLogLevel() {
         return level;
     }
 
-    public static LoggerGroup getLoggerGroup(String name) {
-        return loggerGroups.computeIfAbsent(name)
-        // if (clazz == null) return defaultGroup;
-        //  return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);
-        return null;
+    public static LoggerGroup getDefaultLoggerGroup() {
+        return defaultLoggerGroup;
     }
 
-    public static LoggerGroup getLoggerGroup(String name, Appender appender) {
-        if (appender == null) appender = defaultAppender;
-
-    /*    Class<?> clazz = //TODO получение класса где был вызван логгер.
-        if (clazz == null) return defaultGroup;
-        return loggerGroups.computeIfAbsent(clazz, LoggerGroup::new);*/
-        return null;
+    public static LoggerGroup getLoggerGroup(String name) {
+        if (name == null) return defaultLoggerGroup;
+        return loggerGroups.computeIfAbsent(name, s -> {return new LoggerGroup(s,null)})
     }
 
     private static LogLevel initSettings() {
