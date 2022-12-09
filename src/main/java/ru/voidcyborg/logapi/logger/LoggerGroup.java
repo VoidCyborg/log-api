@@ -43,6 +43,7 @@ public final class LoggerGroup {
 
     public LoggerGroup addAppenders(Appender... appenders) {
         if (appenders == null) return this;
+
         try {
             for (Appender appender : appenders) {
                 if (appender != null) this.appenders.add(appender);

@@ -28,7 +28,7 @@ public final class Logger {
     private final boolean debug;
     private final boolean trace;
 
-    Logger(Set<Appender> appenders, LogLevel level) {//TODO remove public
+    Logger(Set<Appender> appenders, LogLevel level) {
         this.appenders = appenders;
         this.level = level;
 
