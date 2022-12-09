@@ -1,14 +1,14 @@
 package ru.voidcyborg.logapi.level;
 
 public enum LogLevel {
-    OFF,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
+    ALL,
     TRACE,
-    ALL;
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR,
+    FATAL,
+    OFF;
 
     private final String toString = calcString();
 

@@ -2,12 +2,13 @@ package ru.voidcyborg.logapi.appender.appenders;
 
 import ru.voidcyborg.logapi.appender.Appender;
 
-import java.util.zip.DataFormatException;
+import java.util.HashMap;
 
 public class ConsoleAppender implements Appender {
 
     @Override
-    public void parseSettings(String params){
+    public void parseSettings(HashMap<String, String> settings) {
+
     }
 
     @Override

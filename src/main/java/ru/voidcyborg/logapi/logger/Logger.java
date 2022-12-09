@@ -19,17 +19,25 @@ public final class Logger {
     }
 
     private final Set<Appender> appenders;
-    private final LogLevel level = LoggerFactory.getLogLevel();
+    private final LogLevel level;
 
-    private final boolean fatal = shouldLog(LogLevel.FATAL);
-    private final boolean error = shouldLog(LogLevel.ERROR);
-    private final boolean warn = shouldLog(LogLevel.WARN);
-    private final boolean info = shouldLog(LogLevel.INFO);
-    private final boolean debug = shouldLog(LogLevel.DEBUG);
-    private final boolean trace = shouldLog(LogLevel.TRACE);
+    private final boolean fatal;
+    private final boolean error;
+    private final boolean warn;
+    private final boolean info;
+    private final boolean debug;
+    private final boolean trace;
 
-    public Logger(Set<Appender> appenders) {//TODO remove public
+    Logger(Set<Appender> appenders, LogLevel level) {//TODO remove public
         this.appenders = appenders;
+        this.level = level;
+
+        fatal = shouldLog(LogLevel.FATAL);
+        error = shouldLog(LogLevel.ERROR);
+        warn = shouldLog(LogLevel.WARN);
+        info = shouldLog(LogLevel.INFO);
+        debug = shouldLog(LogLevel.DEBUG);
+        trace = shouldLog(LogLevel.TRACE);
     }
 
 
@@ -161,8 +169,7 @@ public final class Logger {
                 } catch (Exception ignore) {
                 }
             }
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -215,13 +222,15 @@ public final class Logger {
         String[] clazzAndName = LoggerFactory.getClassMethodLine(3);
         StringBuilder builder = new StringBuilder()
                 .append(date.format(now))
-                .append(time.format(now)).append('[')
-                .append(type).append("][")
-                .append(Thread.currentThread().getName()).append("][")
-                .append(clazzAndName[0]).append("][")
-                .append(clazzAndName[1]).append(':')
-                .append(clazzAndName[2]).append("] ")
-                .append(message).append('\n');
+                .append(time.format(now))
+                .append('[').append(type)
+                .append("][")
+                .append(Thread.currentThread().getName())
+                .append("][").append(clazzAndName[0])
+                .append("][").append(clazzAndName[1])
+                .append(':').append(clazzAndName[2])
+                .append("] ").append(message)
+                .append('\n');
         if (obj != null) builder.append(objToString(obj));
 
         return builder.toString();
