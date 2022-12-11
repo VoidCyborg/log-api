@@ -24,6 +24,17 @@ public final class LoggerFactory {
         if (path == null) throw new SettingsInitException("Path to settings can't be null");
         if (initialized) throw new SettingsInitException("Settings is already initialized!");
 
+        Settings parsedSettings = parseSettings(path, resources);
+
+        appenders = parsedSettings.getAppenders();
+        level = parsedSettings.getLevel();
+        settings = parsedSettings;
+        initialized = true;
+    }
+
+    public static Settings parseSettings(String path, boolean resources) throws SettingsInitException {
+        if (path == null) throw new SettingsInitException("Path to settings can't be null");
+
         List<String> lines = new ArrayList<>();
         if (resources) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(LoggerFactory.class.getResourceAsStream(path))))) {
@@ -44,11 +55,8 @@ public final class LoggerFactory {
                 throw new SettingsInitException(e.toString());
             }
         }
-        Settings parsedSettings = new Settings(lines.toArray(new String[0]));
-        appenders = parsedSettings.getAppenders();
-        level = parsedSettings.getLevel();
-        settings = parsedSettings;
-        initialized = true;
+
+        return new Settings(lines.toArray(new String[0]));
     }
 
     public static Settings getSettings() {

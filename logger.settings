@@ -1,5 +1,5 @@
 appender=ru.voidcyborg.logapi.appender.appenders.ConsoleAppender
 LogLevel=ALL
 appender.maxFileSize=2048
-appender.name=bebralog
+appender.fileName=bebralog
 appender.maxFiles=10
