@@ -1,5 +1,6 @@
-appender=ru.voidcyborg.logapi.appender.appenders.ConsoleAppender
+appender=ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
 LogLevel=ALL
 appender.maxFileSize=2048
-appender.fileName=bebralog
 appender.maxFiles=10
+appender.fileName=bebralog.txt
+appender.folderPath=logs

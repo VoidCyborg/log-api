@@ -12,13 +12,13 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RollingFileAppender implements Appender {//TODO
+public class RollingFileAppender implements Appender {
 
 
     private static final String PID = ProcessHandle.current().pid() + "-";
-
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private volatile boolean settingsParsed;
     private volatile String name = "log";
     private volatile String type = "";
     private volatile Path path = Path.of("");
@@ -32,43 +32,70 @@ public class RollingFileAppender implements Appender {//TODO
     @Override
     public synchronized void parseSettings(HashMap<String, String> settings) {
         if (settings == null) return;
+        if (settingsParsed) return;
 
         String[] nameType = separateNameAndType(settings.get("fileName"));
         name = nameType[0];
         type = nameType[1];
         maxSize = parseSize(settings.get("maxFileSize"));
         maxFiles = parseMaxFiles(settings.get("maxFiles"));
-
+        path = parsePath(settings.get("folderPath"));
+        settingsParsed = true;
     }
 
     @Override
     public synchronized boolean append(String text) {
         if (text == null) return false;
+        if (text.isEmpty()) return false;
+
+        executor.execute(() -> {
+            ByteBuffer buffer = ByteBuffer.wrap(text.getBytes(StandardCharsets.UTF_8));
+
+            String fileName;
+            while (true) {
+                fileName = generateName();
+
+                try (FileChannel channel = FileChannel.open(this.path.resolve(fileName), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                    if (channel.size() + buffer.remaining() > maxSize) {
+                        if (maxFiles > 0 && index + 1 >= maxFiles) index = 0;
+                        else index++;
 
 
-        while (true) {
-            try (FileChannel channel = FileChannel.open(this.path.resolve(name + "-" + index + type), StandardOpenOption.CREATE_NEW, StandardOpenOption.APPEND)) {
-                ByteBuffer buffer = ByteBuffer.wrap(text.getBytes(StandardCharsets.UTF_8));
-                if (channel.size() + buffer.remaining() > maxSize) {
-                    index++;
+                        fileName = generateName();
+
+                        if (Files.exists(this.path.resolve(fileName))) Files.delete(this.path.resolve(fileName));
+
+                        continue;
+                    }
+
+                    while (buffer.hasRemaining()) {
+                        if (channel.write(buffer) <= 0) break;
+                    }
+
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
                 }
-            } catch (Exception ignore) {
-                break;
             }
-            if (maxFiles>0){
-                if(index>=maxFiles) {
-                    Files.delete();
-                }
-            }
-        }
 
+        });
 
-        return true;//TODO
+        return true;
+    }
+
+    private String generateName() {
+        return PID + name + "-" + index + type;
     }
 
     private Path parsePath(String s) {
         try {
-            return Path.of(s);
+            Path path = Path.of(s);
+
+            Files.createDirectories(path);
+            if (!Files.isDirectory(path)) throw new NullPointerException();
+
+            return path;
         } catch (Exception ignore) {
         }
         return Path.of("");
