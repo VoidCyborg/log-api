@@ -1,6 +1,6 @@
 package ru.voidcyborg.logapi.settings;
 
-public class SettingsInitException extends Exception {
+public final class SettingsInitException extends Exception {
     public SettingsInitException() {
         super();
     }

@@ -1,6 +1,8 @@
 package ru.voidcyborg.logapi.appender.appenders;
 
 import ru.voidcyborg.logapi.appender.Appender;
+import ru.voidcyborg.logapi.settings.SettingsInitException;
+
 import java.util.Map;
 
 /**
@@ -36,7 +38,7 @@ import java.util.Map;
  * @see     java.util.Map
  * @see     java.lang.String
  */
-public class ConsoleAppender implements Appender {
+public final class ConsoleAppender implements Appender {
 
     /**
      * Данный метод предназначен для единоразовой передачи настроек.
@@ -47,7 +49,6 @@ public class ConsoleAppender implements Appender {
      * <p>
      *
      * @param   settings Карта строк-настроек {@code Map<String, String>}. Map of settings.
-     *
      */
     @Override
     public void parseSettings(Map<String, String> settings) {

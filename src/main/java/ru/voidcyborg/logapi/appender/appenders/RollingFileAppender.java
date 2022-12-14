@@ -1,6 +1,7 @@
 package ru.voidcyborg.logapi.appender.appenders;
 
 import ru.voidcyborg.logapi.appender.Appender;
+import ru.voidcyborg.logapi.settings.SettingsInitException;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class RollingFileAppender implements Appender {
+public final class RollingFileAppender implements Appender {
 
     private static final String PID = ProcessHandle.current().pid() + "-";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -31,8 +32,8 @@ public class RollingFileAppender implements Appender {
 
 
     @Override
-    public synchronized void parseSettings(Map<String, String> settings) {
-        if (settings == null) return;
+    public synchronized void parseSettings(Map<String, String> settings) throws SettingsInitException {
+        if (settings == null) throw new SettingsInitException("Settings of RollingFileAppender can't be null.");
         if (settingsParsed) return;
 
         String[] nameType = separateNameAndType(settings.get("fileName"));
