@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +31,7 @@ public class RollingFileAppender implements Appender {
 
 
     @Override
-    public synchronized void parseSettings(HashMap<String, String> settings) {
+    public synchronized void parseSettings(Map<String, String> settings) {
         if (settings == null) return;
         if (settingsParsed) return;
 

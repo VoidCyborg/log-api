@@ -1,9 +1,9 @@
 package ru.voidcyborg.logapi.appender;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public interface Appender {
-    void parseSettings(HashMap<String, String> settings);
+    void parseSettings(Map<String, String> settings);
 
     boolean append(String text);
 }
