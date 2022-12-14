@@ -14,9 +14,10 @@ import java.util.concurrent.Executors;
 
 public class RollingFileAppender implements Appender {
 
-
     private static final String PID = ProcessHandle.current().pid() + "-";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private volatile FileChannel channel;
 
     private volatile boolean settingsParsed;
     private volatile String name = "log";
@@ -55,15 +56,23 @@ public class RollingFileAppender implements Appender {
             while (true) {
                 fileName = generateName();
 
-                try (FileChannel channel = FileChannel.open(this.path.resolve(fileName), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                try {
+                    if (channel == null)
+                        channel = FileChannel.open(this.path.resolve(fileName), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+
                     if (channel.size() + buffer.remaining() > maxSize) {
                         if (maxFiles > 0 && index + 1 >= maxFiles) index = 0;
                         else index++;
 
-
                         fileName = generateName();
 
                         if (Files.exists(this.path.resolve(fileName))) Files.delete(this.path.resolve(fileName));
+                        try {
+                            if (channel != null) channel.close();
+                        } catch (Exception ignore) {
+                        }
+                        channel = null;
 
                         continue;
                     }
@@ -74,11 +83,14 @@ public class RollingFileAppender implements Appender {
 
                     return;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    try {
+                        if (channel != null) channel.close();
+                    } catch (Exception ignore) {
+                    }
+                    channel = null;
                     break;
                 }
             }
-
         });
 
         return true;
