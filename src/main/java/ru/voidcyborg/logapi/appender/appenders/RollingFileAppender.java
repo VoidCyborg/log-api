@@ -3,12 +3,13 @@ package ru.voidcyborg.logapi.appender.appenders;
 import ru.voidcyborg.logapi.appender.Appender;
 import ru.voidcyborg.logapi.settings.SettingsInitException;
 
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +20,7 @@ public final class RollingFileAppender implements Appender {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private volatile FileChannel channel;
+    private volatile FileLock lock;
 
     private volatile boolean settingsParsed;
     private volatile String name = "log";
@@ -59,35 +61,44 @@ public final class RollingFileAppender implements Appender {
 
                 try {
                     if (channel == null)
-                        channel = FileChannel.open(this.path.resolve(fileName), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                        channel = this.createChannel(this.path.resolve(fileName));
 
 
-                    if (channel.size() + buffer.remaining() > maxSize) {
+                    if (channel.size() + buffer.remaining() > maxSize || channel == null) {
                         if (maxFiles > 0 && index + 1 >= maxFiles) index = 0;
                         else index++;
 
                         fileName = generateName();
 
                         if (Files.exists(this.path.resolve(fileName))) Files.delete(this.path.resolve(fileName));
+
+                        try {
+                            if (lock != null) lock.release();
+                        } catch (Exception ignore) {
+                        }
                         try {
                             if (channel != null) channel.close();
                         } catch (Exception ignore) {
                         }
+                        lock = null;
                         channel = null;
 
                         continue;
                     }
 
-                    while (buffer.hasRemaining()) {
-                        if (channel.write(buffer) <= 0) break;
-                    }
+                    this.writeToChannel(buffer);
 
                     return;
                 } catch (Exception e) {
                     try {
+                        if (lock != null) lock.release();
+                    } catch (Exception ignore) {
+                    }
+                    try {
                         if (channel != null) channel.close();
                     } catch (Exception ignore) {
                     }
+                    lock = null;
                     channel = null;
                     break;
                 }
@@ -95,6 +106,29 @@ public final class RollingFileAppender implements Appender {
         });
 
         return true;
+    }
+
+    private void writeToChannel(ByteBuffer buffer) {
+        try {
+            if (channel != null) {
+                this.channel.position(this.channel.size());
+                this.channel.write(buffer);
+            }
+        } catch (Exception ignore) {
+        }
+    }
+
+    private FileChannel createChannel(Path path) {
+        try {
+            if (!Files.exists(path)) Files.createFile(path);
+            RandomAccessFile temp = new RandomAccessFile(path.toString(), "rw");
+            this.channel = temp.getChannel();
+            this.lock = this.channel.lock();
+
+            return this.channel;
+        } catch (Exception ignore) {
+        }
+        return null;
     }
 
     private String generateName() {

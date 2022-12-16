@@ -2,6 +2,12 @@ package ru.voidcyborg.logapi.logger;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -16,6 +22,7 @@ class LoggerFactoryTest {
             e.printStackTrace();
             fail();
         }*/
+
     }
 
     @Test
@@ -30,6 +37,7 @@ class LoggerFactoryTest {
         Logger logger = LoggerFactory.getLoggerGroup("Security").getLogger();
 
         Random random = new Random();
+
 
         logger.info("BBBBB");
         for (int i = 0; i < 5000; i++) {
