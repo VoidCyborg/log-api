@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 public final class RollingFileAppender implements Appender {
 
+
     private static final String PID = ProcessHandle.current().pid() + "-";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -60,8 +61,7 @@ public final class RollingFileAppender implements Appender {
                 fileName = generateName();
 
                 try {
-                    if (channel == null)
-                        channel = this.createChannel(this.path.resolve(fileName));
+                    if (channel == null) this.createChannel(this.path.resolve(fileName));
 
 
                     if (channel.size() + buffer.remaining() > maxSize || channel == null) {
@@ -118,17 +118,25 @@ public final class RollingFileAppender implements Appender {
         }
     }
 
-    private FileChannel createChannel(Path path) {
+    private void createChannel(Path path) {
         try {
-            if (!Files.exists(path)) Files.createFile(path);
+            if (!Files.exists(path)) {
+                Files.createDirectories(this.path);
+                Files.createFile(path);
+            }
             RandomAccessFile temp = new RandomAccessFile(path.toString(), "rw");
             this.channel = temp.getChannel();
             this.lock = this.channel.lock();
 
-            return this.channel;
-        } catch (Exception ignore) {
+            return;
+        } catch (Exception e) {
+            try {
+                if (this.channel != null) channel.close();
+            } catch (Exception ignore) {
+            }
         }
-        return null;
+        this.channel = null;
+        this.lock = null;
     }
 
     private String generateName() {

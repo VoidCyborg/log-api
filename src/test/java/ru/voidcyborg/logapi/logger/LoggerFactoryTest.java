@@ -1,18 +1,22 @@
 package ru.voidcyborg.logapi.logger;
 
 import org.junit.jupiter.api.Test;
+import ru.voidcyborg.logapi.settings.SettingsInitException;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 class LoggerFactoryTest {
+
+    static {
+        try {
+            LoggerFactory.setSettings("logger.settings", true);
+        } catch (SettingsInitException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Test
     void setSettings() {
@@ -40,7 +44,7 @@ class LoggerFactoryTest {
 
 
         logger.info("BBBBB");
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 500_000; i++) {
             logger.warn(String.valueOf(random.nextLong()));
         }
 
@@ -52,10 +56,16 @@ class LoggerFactoryTest {
         logger.warn("Bebra me222ssage");
         logger.info("AAAAA");
 
+
+
         try {
             Thread.sleep(60_000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+
     }
+
+
 }

@@ -1,8 +1,6 @@
 package ru.voidcyborg.logapi.appender.appenders;
 
 import ru.voidcyborg.logapi.appender.Appender;
-import ru.voidcyborg.logapi.settings.SettingsInitException;
-
 import java.util.Map;
 
 /**
