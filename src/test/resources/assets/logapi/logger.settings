@@ -1,4 +1,4 @@
-appender=ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
+appender=ru.voidcyborg.logapi.appender.appenders.VoidAppender
 LogLevel=ALL
 TimeZone=Europe/Moscow
 appender.maxFileSize=1024_000

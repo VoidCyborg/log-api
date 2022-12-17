@@ -1,8 +1,11 @@
 package ru.voidcyborg.logapi.logger;
 
 import org.junit.jupiter.api.Test;
+import ru.voidcyborg.logapi.appender.Appender;
+import ru.voidcyborg.logapi.appender.appenders.RollingFileAppender;
 import ru.voidcyborg.logapi.settings.SettingsInitException;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -38,7 +41,19 @@ class LoggerFactoryTest {
             fail();
         }
 
-        Logger logger = LoggerFactory.getLoggerGroup("Security").getLogger();
+        HashMap<String, String> settings = new HashMap<>();
+        settings.put("maxFileSize", "1024_000");
+        settings.put("fileName", "bebralog.txt");
+        settings.put("folderPath", "logs");
+        settings.put("maxFiles", "10");
+
+        Appender appender = new RollingFileAppender();
+        try {
+            appender.parseSettings(settings);
+        } catch (Exception ignore) {
+        }
+
+        Logger logger = LoggerFactory.getLoggerGroup("Security").addAppender(appender).getLogger();
 
         Random random = new Random();
 
@@ -55,7 +70,6 @@ class LoggerFactoryTest {
         logger.error("Bedwqbra maxcascessage1111111111");
         logger.warn("Bebra me222ssage");
         logger.info("AAAAA");
-
 
 
         try {
