@@ -21,7 +21,14 @@ import java.util.Map;
  * It is also recommended not to initialize settings more than once.
  * <p>
  *
+ * Класс должен иметь конструктор без параметров. Так как в дальнейшем будут создаваться экземпляры класса в Settings.
+ * <p>
+ *
+ * The class must have a parameterless constructor. Since in the future instances of the class will be created in Settings.
+ * <p>
+ *
  * @author  VoidCyborg
+ * @see     ru.voidcyborg.logapi.settings.Settings
  * @see     ru.voidcyborg.logapi.appender.appenders.ConsoleAppender
  * @see     ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
  * @see     ru.voidcyborg.logapi.logger.Logger
