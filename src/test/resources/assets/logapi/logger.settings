@@ -1,5 +1,6 @@
 appender=ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
 LogLevel=ALL
+TimeZone=Europe/Moscow
 appender.maxFileSize=1024_000
 appender.maxFiles=10
 appender.fileName=bebralog.txt

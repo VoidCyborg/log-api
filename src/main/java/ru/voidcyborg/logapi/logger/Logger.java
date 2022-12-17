@@ -10,13 +10,8 @@ import java.util.TimeZone;
 
 public final class Logger {
 
-    private static final SimpleDateFormat date = new SimpleDateFormat("[dd-MM-yyyy]");
-    private static final SimpleDateFormat time = new SimpleDateFormat("[HH:mm:ss]");
-
-    static {
-        date.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-        time.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-    }
+    private final SimpleDateFormat date = new SimpleDateFormat("[dd-MM-yyyy]");
+    private final SimpleDateFormat time = new SimpleDateFormat("[HH:mm:ss]");
 
     private final Set<Appender> appenders;
     private final LogLevel level;
@@ -28,9 +23,11 @@ public final class Logger {
     private final boolean debug;
     private final boolean trace;
 
-    Logger(Set<Appender> appenders, LogLevel level) {
+    Logger(Set<Appender> appenders, LogLevel level, TimeZone zone) {
         this.appenders = appenders;
         this.level = level;
+        this.date.setTimeZone(zone);
+        this.time.setTimeZone(zone);
 
         fatal = shouldLog(LogLevel.FATAL);
         error = shouldLog(LogLevel.ERROR);

@@ -5,19 +5,22 @@ import ru.voidcyborg.logapi.level.LogLevel;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class LoggerGroup {
 
     private final LogLevel level;
+    private final TimeZone zone;
     private final Set<Appender> appenders = ConcurrentHashMap.newKeySet();
     private final Map<Class<?>, Logger> loggers = new ConcurrentHashMap<>();
     private final Logger defaultLogger;
 
 
-    LoggerGroup(LogLevel level) {
+    LoggerGroup(LogLevel level, TimeZone zone) {
+        this.zone = zone;
         this.level = level;
-        this.defaultLogger = loggers.computeIfAbsent(LoggerGroup.class, clazz -> new Logger(this.appenders, this.level));
+        this.defaultLogger = loggers.computeIfAbsent(LoggerGroup.class, clazz -> new Logger(this.appenders, this.level, this.zone));
     }
 
     public Logger getLogger() {
@@ -29,8 +32,8 @@ public final class LoggerGroup {
         }
 
         return loggers.computeIfAbsent(frame, clazz -> {
-            defaultLogger.trace("Created new logger - " + clazz.getSimpleName() + " - " + this.level);
-            return new Logger(this.appenders, this.level);
+            defaultLogger.trace("Created new logger - " + clazz.getSimpleName() + " - " + this.level + " - " + this.zone);
+            return new Logger(this.appenders, this.level, this.zone);
         });
     }
 

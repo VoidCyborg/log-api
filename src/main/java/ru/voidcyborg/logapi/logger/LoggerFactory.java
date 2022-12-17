@@ -17,6 +17,7 @@ public final class LoggerFactory {
     private static volatile Appender[] appenders;
     private static volatile Settings settings;
     private static volatile LogLevel level;
+    private static volatile TimeZone zone;
     private static volatile boolean initialized;
 
 
@@ -28,6 +29,7 @@ public final class LoggerFactory {
 
         appenders = parsedSettings.getAppenders();
         level = parsedSettings.getLevel();
+        zone = parsedSettings.getTimeZone();
         settings = parsedSettings;
         initialized = true;
     }
@@ -76,12 +78,12 @@ public final class LoggerFactory {
         if (appenders == null || !initialized)
             throw new NullPointerException("Log API settings not initialized properly. Appenders is null");
         if (name == null) throw new NullPointerException("LoggerGroup name can't be null");
-        return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level).addAppenders(appenders));
+        return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level, zone).addAppenders(appenders));
     }
 
     public static LoggerGroup createCustomLoggerGroup(LogLevel level) {
-        if (level == null) return new LoggerGroup(LogLevel.ALL);
-        return new LoggerGroup(level);
+        if (level == null) return new LoggerGroup(LogLevel.ALL, zone);
+        return new LoggerGroup(level, zone);
     }
 
     public static LogLevel getDefaultLevel() {
