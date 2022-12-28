@@ -3,7 +3,9 @@ package ru.voidcyborg.logapi.settings;
 import ru.voidcyborg.logapi.appender.Appender;
 import ru.voidcyborg.logapi.level.LogLevel;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 
 /**
@@ -29,7 +31,7 @@ import java.util.*;
  * When creating settings, the specified Appenders are created and these settings are applied to them.
  * They can be obtained using the {@code Appender[] getAppenders();} method.
  * <p>
- * Сами настройки можно получить используя метод {@code HashMap<String, String> getAppenderSettings();}.
+ * Сами настройки можно получить используя метод {@code HashMap<String, String> getAppenderSettings(AppenderName);}.
  * <p>
  * The settings themselves can be obtained using the {@code HashMap<String, String> getAppenderSettings();} method.
  * <p>
@@ -47,8 +49,8 @@ public final class Settings {
     private final String[] args;
     private final LogLevel level;
     private final TimeZone zone;
-    private final Appender[] appenders;
-    private final HashMap<String, String> appenderSettings = new HashMap<>();
+    private final HashMap<String, Appender> appenders;
+    private final HashMap<String, HashMap<String, String>> appenderSettings;
 
     /**
      * Конструктор данного класа требует передачи пар ключ-значение с разделителем в виде '='.
@@ -67,11 +69,11 @@ public final class Settings {
         this.level = parseLevel();
         this.zone = parseZone();
         this.appenders = createAppenders();
-        this.parseAppenderSettings();
+        this.appenderSettings = parseAppenderSettings();
 
         try {
-            for (Appender appender : appenders) {
-                appender.parseSettings(this.getAppenderSettings());
+            for (Map.Entry<String, Appender> entry : appenders.entrySet()) {
+                entry.getValue().parseSettings(this.appenderSettings.get(entry.getKey()));
             }
         } catch (Exception e) {
             throw new SettingsInitException("Failed to init settings in Appenders. " + e);
@@ -79,15 +81,20 @@ public final class Settings {
     }
 
     /**
-     * Создаётся копия карты настроек, для того чтобы изначальная карта не была изменена.
+     * Создаётся копия карты настроек для данного appender'а, для того чтобы изначальная карта не была изменена.
      * <p>
      * A copy of the settings map is created so that the original map is not changed.
      *
      * @return Карту с содержанием всех настроек которые были переданы объекту. <p> A map containing all the settings that were passed to the object.
      */
     @SuppressWarnings("unchecked")
-    public HashMap<String, String> getAppenderSettings() {
-        return (HashMap<String, String>) appenderSettings.clone();
+    public HashMap<String, String> getAppenderSettings(String appenderName) {
+        if (appenderName == null) return null;
+
+        HashMap<String, String> result = this.appenderSettings.get(appenderName);
+        if (result != null) return (HashMap<String, String>) result.clone();
+
+        return null;
     }
 
     /**
@@ -98,7 +105,7 @@ public final class Settings {
      * @return Копию массива Appender'ов. <p> A copy of the Appender array.
      */
     public Appender[] getAppenders() {
-        return Arrays.copyOf(appenders, appenders.length);
+        return appenders.values().toArray(new Appender[0]);
     }
 
     /**
@@ -161,52 +168,69 @@ public final class Settings {
         throw new SettingsInitException("Failed to find TimeZone in settings");
     }
 
-    //Прохожусь по строкам и ищу упоминания appender= и пытаюсь получить путь к классу Appender'а.
+    //Прохожусь по строкам и ищу упоминания appender*= и пытаюсь получить путь к классу Appender'а.
     //Все указанные Appender'ы будут созданы. Если не удастся создать хоть один, то выкидываю ошибку.
-    private Appender[] createAppenders() throws SettingsInitException {
-        List<String> paths = new ArrayList<>();
-        for (String s : this.args) {
-            if (s == null) continue;
-            if (!s.startsWith("appender=")) continue;
-            String[] parts = s.split("=");
-            if (parts.length != 2) throw new SettingsInitException("Wrong settings syntax:" + s);
+    //Если встречаю дубликаты выкидываю ошибку.
+    private HashMap<String, Appender> createAppenders() throws SettingsInitException {
+        HashMap<String, Appender> appenders = new HashMap<>();
 
-            paths.add(parts[1]);
-        }
+        try {
+            String prefix = "appender";
 
-        if (paths.isEmpty()) throw new SettingsInitException("No single path to the Appender class.");
+            for (String s : this.args) {
+                if (s == null) continue;
+                if (!s.startsWith(prefix)) continue;
+                String[] parts = s.split("=");
+                if (parts.length != 2) throw new SettingsInitException("Wrong settings syntax: " + s);
+                if (parts[0].contains(".")) continue;
+                if (appenders.containsKey(parts[0]))
+                    throw new SettingsInitException("Appender already initialized: " + s);
 
-        List<Appender> appenders = new ArrayList<>();
-        for (String s : paths) {
-            try {
-                Appender appender = (Appender) Class.forName(s).getDeclaredConstructor().newInstance();
-                appenders.add(appender);
-            } catch (Exception e) {
-                throw new SettingsInitException("Failed to create an Appender:" + s);
+                try {
+                    Appender appender = (Appender) Class.forName(parts[1]).getDeclaredConstructor().newInstance();
+                    appenders.put(parts[0], appender);
+                } catch (Exception e) {
+                    throw new SettingsInitException("Failed to create an Appender: " + s);
+                }
             }
+        } catch (Exception e) {
+            if (e instanceof SettingsInitException) throw e;
+            throw new SettingsInitException("Wrong settings because of " + e);
         }
 
-        return appenders.toArray(new Appender[0]);
+        if (appenders.isEmpty()) throw new SettingsInitException("No single path to the Appender class.");
+
+        return appenders;
     }
 
-    //Прохожусь по строкам и ищу упоминания appender. и создаю набор пар ключ-значение. Пример: appender.key=value
+    //Прохожусь по строкам и ищу упоминания appender*. и создаю набор пар ключ-значение. Пример: appender1.key=value или appender.key=value
     //Все указанные настройки будут применены ко всем Appender'ам.
     //Поэтому при создании конфига не рекомендуется создавать более 1 Appender'а 1 класса.
     //Или с общими именами настроек.
     //При любом нарушении синтаксиса выкидывает ошибку.
-    private void parseAppenderSettings() throws SettingsInitException {
-        String[] parts;
-        String prefix = "appender.";
-        try {
-            for (String s : args) {
-                parts = s.split("=");
-                if (parts.length != 2) throw new SettingsInitException("Wrong settings syntax:" + s);
-                if (!(parts[0].startsWith(prefix))) continue;
+    private HashMap<String, HashMap<String, String>> parseAppenderSettings() throws SettingsInitException {
+        HashMap<String, HashMap<String, String>> appenderSettings = new HashMap<>();
 
-                this.appenderSettings.put(parts[0].substring(prefix.length()), parts[1]);
+        String[] parts;
+
+        try {
+            for (String name : appenders.keySet()) {
+                HashMap<String, String> settings = new HashMap<>();
+
+                for (String s : args) {
+                    if (!s.startsWith(name)) continue;
+                    parts = s.split("=");
+                    if (parts.length != 2) throw new SettingsInitException("Wrong settings syntax:" + s);
+                    if (!parts[0].replace(name, "").startsWith(".")) continue;
+
+                    settings.put(parts[0].substring(name.length() + 1), parts[1]);
+                }
+                appenderSettings.put(name, settings);
             }
         } catch (Exception e) {
             throw new SettingsInitException("Wrong setting syntax:" + e);
         }
+
+        return appenderSettings;
     }
 }
