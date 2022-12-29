@@ -17,7 +17,7 @@ public final class LoggerFactory {
     private static volatile Appender[] appenders;
     private static volatile Settings settings;
     private static volatile LogLevel level;
-    private static volatile TimeZone zone;
+    private static volatile TimeZone zone = TimeZone.getTimeZone("Europe/Moscow");
     private static volatile boolean initialized;
 
 
@@ -32,6 +32,26 @@ public final class LoggerFactory {
         zone = parsedSettings.getTimeZone();
         settings = parsedSettings;
         initialized = true;
+    }
+
+    public synchronized static Settings getSettings() throws SettingsInitException {
+        if (settings == null || !initialized)
+            throw new SettingsInitException("Log API settings not initialized properly. Settings is null");
+        return settings;
+    }
+
+
+    public synchronized static LogLevel getLogLevel() throws SettingsInitException {
+        if (level == null || !initialized)
+            throw new SettingsInitException("Log API settings not initialized properly. LogLevel is null");
+        return level;
+    }
+
+    public synchronized static LoggerGroup getLoggerGroup(String name) throws SettingsInitException {
+        if (appenders == null || !initialized)
+            throw new SettingsInitException("Log API settings not initialized properly. Appenders is null");
+        if (name == null) throw new SettingsInitException("LoggerGroup name can't be null");
+        return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level, zone).addAppenders(appenders));
     }
 
     public static Settings parseSettings(String path, boolean resources) throws SettingsInitException {
@@ -61,33 +81,13 @@ public final class LoggerFactory {
         return new Settings(lines.toArray(new String[0]));
     }
 
-    public static Settings getSettings() {
-        if (settings == null || !initialized)
-            throw new NullPointerException("Log API settings not initialized properly. Settings is null");
-        return settings;
-    }
-
-
-    public static LogLevel getLogLevel() throws NullPointerException {
-        if (level == null || !initialized)
-            throw new NullPointerException("Log API settings not initialized properly. LogLevel is null");
-        return level;
-    }
-
-    public static LoggerGroup getLoggerGroup(String name) throws NullPointerException {
-        if (appenders == null || !initialized)
-            throw new NullPointerException("Log API settings not initialized properly. Appenders is null");
-        if (name == null) throw new NullPointerException("LoggerGroup name can't be null");
-        return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level, zone).addAppenders(appenders));
-    }
-
     public static LoggerGroup createCustomLoggerGroup(LogLevel level) {
-        if (level == null) return new LoggerGroup(LogLevel.ALL, zone);
+        if (level == null) return new LoggerGroup(LoggerFactory.getDefaultLevel(), zone);
         return new LoggerGroup(level, zone);
     }
 
     public static LogLevel getDefaultLevel() {
-        return LogLevel.WARN;
+        return LogLevel.INFO;
     }
 
 
