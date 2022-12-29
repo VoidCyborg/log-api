@@ -88,13 +88,25 @@ public final class Settings {
      * @return Карту с содержанием всех настроек которые были переданы объекту. <p> A map containing all the settings that were passed to the object.
      */
     @SuppressWarnings("unchecked")
-    public HashMap<String, String> getAppenderSettings(String appenderName) {
+    public HashMap<String, String> getAppenderSettings(String appenderName) {//TODO
         if (appenderName == null) return null;
 
         HashMap<String, String> result = this.appenderSettings.get(appenderName);
         if (result != null) return (HashMap<String, String>) result.clone();
 
         return null;
+    }
+
+
+    /**
+     * Создаётся копия имён Appender'ов которые были созданы основываясь на указанных настроках.
+     * <p>
+     * Creates a copy of Appender Names that were created based on the specified settings.
+     *
+     * @return Копию массива имён Appender'ов. <p> A copy of the Appender Names array.
+     */
+    public String[] getAppenderNames() {
+        return this.appenders.keySet().toArray(new String[0]);
     }
 
     /**
@@ -217,9 +229,6 @@ public final class Settings {
     }
 
     //Прохожусь по строкам и ищу упоминания appender*. и создаю набор пар ключ-значение. Пример: appender1.key=value или appender.key=value
-    //Все указанные настройки будут применены ко всем Appender'ам.
-    //Поэтому при создании конфига не рекомендуется создавать более 1 Appender'а 1 класса.
-    //Или с общими именами настроек.
     //При любом нарушении синтаксиса выкидывает ошибку.
     private HashMap<String, HashMap<String, String>> parseAppenderSettings() throws SettingsInitException {
         HashMap<String, HashMap<String, String>> appenderSettings = new HashMap<>();
