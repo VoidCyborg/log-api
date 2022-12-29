@@ -79,34 +79,15 @@ public final class RollingFileAppender implements Appender {
 
                         if (Files.exists(this.path.resolve(fileName))) Files.delete(this.path.resolve(fileName));
 
-                        try {
-                            if (lock != null) lock.release();
-                        } catch (Exception ignore) {
-                        }
-                        try {
-                            if (channel != null) channel.close();
-                        } catch (Exception ignore) {
-                        }
-                        lock = null;
-                        channel = null;
-
+                        this.closeChannel();
                         continue;
                     }
 
-                    this.writeToChannel(buffer);
+                    if (!this.writeToChannel(buffer)) continue;
 
                     return;
                 } catch (Exception e) {
-                    try {
-                        if (lock != null) lock.release();
-                    } catch (Exception ignore) {
-                    }
-                    try {
-                        if (channel != null) channel.close();
-                    } catch (Exception ignore) {
-                    }
-                    lock = null;
-                    channel = null;
+                    this.closeChannel();
                     break;
                 }
             }
@@ -115,16 +96,21 @@ public final class RollingFileAppender implements Appender {
         return true;
     }
 
-    private void writeToChannel(ByteBuffer buffer) {
+    //Безопасно пишет в канал, если не удалось, возвращает false;
+    private boolean writeToChannel(ByteBuffer buffer) {
         try {
             if (channel != null) {
                 this.channel.position(this.channel.size());
                 this.channel.write(buffer);
+                return true;
             }
         } catch (Exception ignore) {
+            this.closeChannel();
         }
+        return false;
     }
 
+    //Создаёт канал с замком, чтобы файл был доступен только данному классу.
     private void createChannel(Path path) {
         try {
             if (!Files.exists(path)) {
@@ -146,10 +132,26 @@ public final class RollingFileAppender implements Appender {
         this.lock = null;
     }
 
+    //Безопасно закрывает канал и замок.
+    private void closeChannel() {
+        try {
+            if (lock != null) lock.release();
+        } catch (Exception ignore) {
+        }
+        try {
+            if (channel != null) channel.close();
+        } catch (Exception ignore) {
+        }
+        lock = null;
+        channel = null;
+    }
+
+    //Генерирует имя файла основываять на ид программы, имени файла, индексе и типе.
     private String generateName() {
         return PID + name + "-" + index + type;
     }
 
+    //Парсит путь к директории в которую будут сохраняться файлы логов.
     private Path parsePath(String s) throws IOException {
         Path path = Path.of(s);
 
@@ -159,10 +161,12 @@ public final class RollingFileAppender implements Appender {
         return path;
     }
 
+    //Парсит максимальное кол-во файлов, если будет <= 0 то будет разрешено бесконечное кол-во файлов.
     private int parseMaxFiles(String s) {
         return Integer.parseInt(s);
     }
 
+    //Парсит максимальный размер файла, если меньше 1024 то вернёт 1024 байта.
     private int parseSize(String s) {
         int size = Integer.parseInt(s);
         if (size < 1024) size = 1024;
@@ -170,6 +174,7 @@ public final class RollingFileAppender implements Appender {
         return size;
     }
 
+    //Выковыривает какое имя будет у файла, и какое у него будет расширение. Пример: log.txt -> 18104-log-0.txt -> pid-name-index.type
     private String[] separateNameAndType(String fileName) {
         if (fileName == null || fileName.isBlank()) throw new NullPointerException("File name is null or blank.");
 

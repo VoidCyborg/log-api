@@ -1,34 +1,34 @@
 package ru.voidcyborg.logapi.logger;
 
 import org.junit.jupiter.api.Test;
-import ru.voidcyborg.logapi.appender.Appender;
-import ru.voidcyborg.logapi.appender.appenders.RollingFileAppender;
 import ru.voidcyborg.logapi.settings.SettingsInitException;
-
-import java.util.HashMap;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 class LoggerFactoryTest {
 
-   /* static {
+    static {
         try {
             LoggerFactory.setSettings("logger.settings", true);
         } catch (SettingsInitException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
 
     @Test
     void setSettings() {
-      /*  try {
+        try {
             LoggerFactory.setSettings("/assets/logapi/logger.settings", true);
-        }catch (Exception e){
+
+
+            Logger logger = LoggerFactory.getLoggerGroup("Security").getLogger();
+            logger.info("BBBBB");
+        } catch (Exception e) {
             e.printStackTrace();
             fail();
-        }*/
+        }
+
 
     }
 
