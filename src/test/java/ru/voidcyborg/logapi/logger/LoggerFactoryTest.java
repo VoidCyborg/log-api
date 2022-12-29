@@ -12,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class LoggerFactoryTest {
 
-    static {
+   /* static {
         try {
             LoggerFactory.setSettings("logger.settings", true);
         } catch (SettingsInitException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
     @Test
@@ -34,7 +34,7 @@ class LoggerFactoryTest {
 
     @Test
     void setSettings2() {
-        try {
+     /*   try {
             LoggerFactory.setSettings("logger.settings", false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +77,7 @@ class LoggerFactoryTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+ */
 
     }
 

@@ -3,10 +3,17 @@ plugins {
 }
 
 group 'ru.voidcyborg'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 repositories {
     mavenCentral()
+}
+
+
+task lazyClean {
+    fileTree("${buildDir}/libs").files.each { file ->
+        delete(file)
+    }
 }
 
 dependencies {
