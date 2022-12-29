@@ -134,16 +134,22 @@ public final class Settings {
     //Прохожусь по строкам и ищу упоминания LogLevel= и пытаюсь получить уровень.
     //Если указанно несколько значений то будет взято первое попавшееся.
     private LogLevel parseLevel() throws SettingsInitException {
-        LogLevel level;
-        for (String line : args) {
-            try {
-                if (!line.startsWith("LogLevel=")) continue;
-                line = line.replace("LogLevel=", "");
-                level = LogLevel.valueOf(line);
+        try {
+            LogLevel level;
+            for (String line : args) {
+                if (line == null) continue;
+                try {
+                    line = line.replace(" ", "");
+                    if (!line.startsWith("LogLevel=")) continue;
+                    line = line.replace("LogLevel=", "");
+                    level = LogLevel.valueOf(line);
 
-                return level;
-            } catch (Exception ignore) {
+                    return level;
+                } catch (Exception ignore) {
+                }
             }
+        } catch (Exception e) {
+            throw new SettingsInitException("Failed to find LogLevel in settings, because of " + e);
         }
 
         throw new SettingsInitException("Failed to find LogLevel in settings");
@@ -153,16 +159,22 @@ public final class Settings {
     //Если указанно несколько значений то будет взято первое.
     //Если значение будет указанно не корректно то будет взято GMT.
     private TimeZone parseZone() throws SettingsInitException {
-        TimeZone zone;
-        for (String line : args) {
-            try {
-                if (!line.startsWith("TimeZone=")) continue;
-                line = line.replace("TimeZone=", "");
-                zone = TimeZone.getTimeZone(line);
+        try {
+            TimeZone zone;
+            for (String line : args) {
+                if (line == null) continue;
+                try {
+                    line = line.replace(" ", "");
+                    if (!line.startsWith("TimeZone=")) continue;
+                    line = line.replace("TimeZone=", "");
+                    zone = TimeZone.getTimeZone(line);
 
-                return zone;
-            } catch (Exception ignore) {
+                    return zone;
+                } catch (Exception ignore) {
+                }
             }
+        } catch (Exception e) {
+            throw new SettingsInitException("Failed to find TimeZone in settings, because of " + e);
         }
 
         throw new SettingsInitException("Failed to find TimeZone in settings");
@@ -179,6 +191,7 @@ public final class Settings {
 
             for (String s : this.args) {
                 if (s == null) continue;
+                s = s.replace(" ", "");
                 if (!s.startsWith(prefix)) continue;
                 String[] parts = s.split("=");
                 if (parts.length != 2) throw new SettingsInitException("Wrong settings syntax: " + s);
