@@ -100,20 +100,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void trace(String message) {
         if (!trace) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.TRACE.toString(), message, null));
+                    appender.append(format(LogLevel.TRACE.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -130,21 +130,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void trace(String message, Object obj) {
         if (!trace) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.TRACE.toString(), message, obj));
+                    appender.append(format(LogLevel.TRACE.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -160,20 +160,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void debug(String message) {
         if (!debug) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.DEBUG.toString(), message, null));
+                    appender.append(format(LogLevel.DEBUG.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -189,21 +189,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void debug(String message, Object obj) {
         if (!debug) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.DEBUG.toString(), message, obj));
+                    appender.append(format(LogLevel.DEBUG.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -219,20 +219,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void info(String message) {
         if (!info) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.INFO.toString(), message, null));
+                    appender.append(format(LogLevel.INFO.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -248,21 +248,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void info(String message, Object obj) {
         if (!info) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.INFO.toString(), message, obj));
+                    appender.append(format(LogLevel.INFO.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -278,20 +278,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void warn(String message) {
         if (!warn) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.WARN.toString(), message, null));
+                    appender.append(format(LogLevel.WARN.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -307,21 +307,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void warn(String message, Object obj) {
         if (!warn) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.WARN.toString(), message, obj));
+                    appender.append(format(LogLevel.WARN.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -337,20 +337,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void error(String message) {
         if (!error) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.ERROR.toString(), message, null));
+                    appender.append(format(LogLevel.ERROR.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -367,21 +367,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void error(String message, Object obj) {
         if (!error) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.ERROR.toString(), message, obj));
+                    appender.append(format(LogLevel.ERROR.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -397,20 +397,20 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
      */
     public void fatal(String message) {
         if (!fatal) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.FATAL.toString(), message, null));
+                    appender.append(format(LogLevel.FATAL.toString(), message, null, false));
                 } catch (Exception ignore) {
                 }
             }
@@ -426,21 +426,21 @@ public final class Logger {
      * This method writes a message to all Appenders.
      * If the logging level of this method is higher or equal to the logging level of LoggerGroup.
      * <p>
-     *
+     * <p>
      * Не должно быть выбрашено каких-либо исключений.
      * <p>
      * No exceptions should be thrown.
      * <p>
-     * @param   message Строка которую необходимо записать. The string to be logged.
-     * @param   obj Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      *
+     * @param message Строка которую необходимо записать. The string to be logged.
+     * @param obj     Любой объект который, также необходимо записать. Any object that also needs to be recorded.
      */
     public void fatal(String message, Object obj) {
         if (!fatal) return;
         try {
             for (Appender appender : appenders) {
                 try {
-                    appender.append(format(LogLevel.FATAL.toString(), message, obj));
+                    appender.append(format(LogLevel.FATAL.toString(), message, obj, true));
                 } catch (Exception ignore) {
                 }
             }
@@ -458,7 +458,7 @@ public final class Logger {
     }
 
     //Добавляет форматирование строки, оно неизменно.
-    private String format(String type, String message, Object obj) {
+    private String format(String type, String message, Object obj, boolean formatObject) {
         Date now = new Date();
         String[] clazzMethodLine = LoggerFactory.getClassMethodLine(3);
         StringBuilder builder = new StringBuilder()
@@ -471,7 +471,7 @@ public final class Logger {
                 .append(':').append(clazzMethodLine[2])
                 .append("] ").append(message)
                 .append('\n');
-        if (obj != null) builder.append(objToString(obj));
+        if (formatObject) builder.append(objToString(obj));
 
         return builder.toString();
     }

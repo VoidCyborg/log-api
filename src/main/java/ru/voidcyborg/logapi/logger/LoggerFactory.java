@@ -47,10 +47,10 @@ public final class LoggerFactory {
         return level;
     }
 
-    public synchronized static LoggerGroup getLoggerGroup(String name) throws SettingsInitException {
+    public synchronized static LoggerGroup getLoggerGroup(String name) throws NullPointerException {
         if (appenders == null || !initialized)
-            throw new SettingsInitException("Log API settings not initialized properly. Appenders is null");
-        if (name == null) throw new SettingsInitException("LoggerGroup name can't be null");
+            throw new NullPointerException("Log API settings not initialized properly. Appenders is null");
+        if (name == null) throw new NullPointerException("LoggerGroup name can't be null");
         return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level, zone).addAppenders(appenders));
     }
 
