@@ -18,7 +18,17 @@ import java.util.concurrent.Executors;
 public final class RollingFileAppender implements Appender {
 
 
-    private static final String PID = ProcessHandle.current().pid() + "-";
+    private static final String PID;
+    static {
+        String temp;
+        try {
+            temp = ProcessHandle.current().pid() + "-";
+        } catch (Exception e) {
+            temp = (Math.random() * (Integer.MAX_VALUE / 50)) + "-";
+        }
+        PID = temp;
+    }
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private volatile FileChannel channel;
