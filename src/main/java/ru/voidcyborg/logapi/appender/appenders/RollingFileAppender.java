@@ -3,6 +3,7 @@ package ru.voidcyborg.logapi.appender.appenders;
 import ru.voidcyborg.logapi.appender.Appender;
 import ru.voidcyborg.logapi.settings.SettingsInitException;
 
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -24,9 +25,9 @@ public final class RollingFileAppender implements Appender {
     private volatile FileLock lock;
 
     private volatile boolean settingsParsed;
-    private volatile String name = "log";
-    private volatile String type = "";
-    private volatile Path path = Path.of("");
+    private volatile String name;
+    private volatile String type;
+    private volatile Path path;
 
     private volatile int maxSize = 1024_000;
     private volatile int maxFiles = -1;
@@ -37,14 +38,19 @@ public final class RollingFileAppender implements Appender {
     @Override
     public synchronized void parseSettings(Map<String, String> settings) throws SettingsInitException {
         if (settings == null) throw new SettingsInitException("Settings of RollingFileAppender can't be null.");
-        if (settingsParsed) return;
+        if (settingsParsed)
+            throw new SettingsInitException("Settings of RollingFileAppender can't be parsed second time.");
 
-        String[] nameType = separateNameAndType(settings.get("fileName"));
-        name = nameType[0];
-        type = nameType[1];
-        maxSize = parseSize(settings.get("maxFileSize"));
-        maxFiles = parseMaxFiles(settings.get("maxFiles"));
-        path = parsePath(settings.get("folderPath"));
+        try {
+            String[] nameType = separateNameAndType(settings.get("fileName"));
+            name = nameType[0];
+            type = nameType[1];
+            maxSize = parseSize(settings.get("maxFileSize"));
+            maxFiles = parseMaxFiles(settings.get("maxFiles"));
+            path = parsePath(settings.get("folderPath"));
+        } catch (Exception e) {
+            throw new SettingsInitException("Failed to parse settings of RollingFileAppender because of " + e);
+        }
         settingsParsed = true;
     }
 
@@ -52,6 +58,7 @@ public final class RollingFileAppender implements Appender {
     public synchronized boolean append(String text) {
         if (text == null) return false;
         if (text.isEmpty()) return false;
+        if (!settingsParsed) return false;
 
         executor.execute(() -> {
             ByteBuffer buffer = ByteBuffer.wrap(text.getBytes(StandardCharsets.UTF_8));
@@ -143,44 +150,28 @@ public final class RollingFileAppender implements Appender {
         return PID + name + "-" + index + type;
     }
 
-    private Path parsePath(String s) {
-        try {
-            Path path = Path.of(s);
+    private Path parsePath(String s) throws IOException {
+        Path path = Path.of(s);
 
-            Files.createDirectories(path);
-            if (!Files.isDirectory(path)) throw new NullPointerException();
+        Files.createDirectories(path);
+        if (!Files.isDirectory(path)) throw new NullPointerException();
 
-            return path;
-        } catch (Exception ignore) {
-        }
-        return Path.of("");
+        return path;
     }
 
     private int parseMaxFiles(String s) {
-        int files = -1;
-
-        try {
-            files = Integer.parseInt(s);
-        } catch (Exception ignore) {
-        }
-
-        return files;
+        return Integer.parseInt(s);
     }
 
     private int parseSize(String s) {
-        int size = 1024_000;
-
-        try {
-            size = Integer.parseInt(s);
-        } catch (Exception ignore) {
-        }
+        int size = Integer.parseInt(s);
         if (size < 1024) size = 1024;
 
         return size;
     }
 
     private String[] separateNameAndType(String fileName) {
-        if (fileName == null || fileName.isBlank()) return new String[]{"log", ""};
+        if (fileName == null || fileName.isBlank()) throw new NullPointerException("File name is null or blank.");
 
         String[] result = new String[2];
         StringBuilder builder = new StringBuilder();
@@ -201,7 +192,8 @@ public final class RollingFileAppender implements Appender {
         }
 
         result[0] = builder.reverse().toString().trim();
-        if (result[0].isBlank()) result[0] = "log";
+        if (result[0].isBlank()) throw new NullPointerException("File name is blank.");
+        ;
 
 
         if (result[1] == null) result[1] = "";
