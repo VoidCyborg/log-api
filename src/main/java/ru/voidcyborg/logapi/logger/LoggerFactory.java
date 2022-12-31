@@ -81,16 +81,49 @@ public final class LoggerFactory {
         return new Settings(lines.toArray(new String[0]));
     }
 
+    /**
+     * Создает уникальную новую группу логгирования без Appender'ов.
+     * Группа создаётся с указанным Вами уровнем логгирования.
+     * <p>
+     * Creates a unique new logging group without Appenders.
+     * The group is created with the logging level you specified.
+     * <p>
+     *
+     * @param level Необходимый уровень логгирования. Required logging level.
+     * @return Новую уникальную группу логгирования. New unique logging group.
+     */
     public static LoggerGroup createCustomLoggerGroup(LogLevel level) {
         if (level == null) return new LoggerGroup(LoggerFactory.getDefaultLevel(), zone);
         return new LoggerGroup(level, zone);
     }
 
+    /**
+     * Возвращает стандартный уровень логгирования - INFO.
+     * <p>
+     * Return default logging level - INFO.
+     * @return  Уровень логгирования. The logging level.
+     */
     public static LogLevel getDefaultLevel() {
         return LogLevel.INFO;
     }
 
 
+    /**
+     * Данный метод возвращает класс, метод и строку в котором находится код в момент вызова данного метода.
+     * Вы можете указать сколько элементов в стеке пропустить.
+     * <p>
+     * This method returns the class, the method and the line in which the code is located at the moment this method is called.
+     * You can specify how many elements on the stack to skip.
+     * <p>
+     * <p>
+     * Если не удалось найти класс, то возвращаю {@code new String[]{"#unknown", "#unknown", "-1"}}.
+     * <p>
+     * If the class could not be found, then I return {@code new String[]{"#unknown", "#unknown", "-1"}}.
+     * <p>
+     *
+     * @param skip Количество элементов в стеке которое нужно пропустить. The number of elements on the stack to skip.
+     * @return  Класс, метод и строку в котором вызван метод, в случае неудачи null. The class, the method and the line in which the method is called, {@code new String[]{"#unknown", "#unknown", "-1"}} on failure.
+     */
     public static String[] getClassMethodLine(int skip) {
         try {
             StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
@@ -106,6 +139,23 @@ public final class LoggerFactory {
         }
     }
 
+
+    /**
+     * Данный метод возвращает класс в котором находится код в момент вызова данного метода.
+     * Вы можете указать сколько элементов в стеке пропустить.
+     * <p>
+     * This method returns the class in which the code is located at the moment this method is called.
+     * You can specify how many elements on the stack to skip.
+     * <p>
+     * <p>
+     * Если не удалось найти класс, то возвращаю null.
+     * <p>
+     * If the class could not be found, then I return null.
+     * <p>
+     *
+     * @param skip Количество элементов в стеке которое нужно пропустить. The number of elements on the stack to skip.
+     * @return  Класс в котором вызван метод, в случае неудачи null. The class in which the method is called, null on failure.
+     */
     public static Class<?> getClass(int skip) {
         try {
             StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);

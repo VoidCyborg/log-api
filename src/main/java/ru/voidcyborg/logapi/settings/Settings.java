@@ -13,7 +13,6 @@ import java.util.TimeZone;
  * <p>
  * The class {@code Settings} is an object with key-value pairs due to {@code Map<String,String>}.
  * <p>
- * <p>
  * Для создания экземпляра необходимо передать массив строк которые содержат пары ключ значение с '=' в качестве разделителя.
  * <p>
  * To create an instance, you must pass an array of strings that contain key-value pairs with '=' as the delimiter.
