@@ -11,16 +11,75 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * Класс {@code LoggerFactory} предствляет из себя объект, который позволяет создавать LoggerGroup'ы.
+ * <p>
+ * <p>
+ * The {@code LoggerFactory} class is an object that allows you to create LoggerGroups.
+ * <p>
+ * <p>
+ * Для создания группы логгирования необходимо инициализировать настройки системы логгирования.
+ * Пример инициализации настроек:
+ * <p>
+ * <p>
+ * To create a logging group, you need to initialize the logging system settings.
+ * Example of settings initialization:
+ * <blockquote><pre>
+ *
+ * public void methodA(){
+ *    try{
+ *      String path = "/assets/project/logger.settings";
+ *      LoggerFactory.setSettings(path, true);
+ *    }catch(Exception e){
+ *        System.exit(0);
+ *    }
+ * }
+ *
+ * </pre></blockquote><p>
+ * Нельзя задавать настройки более 1 раза.
+ * При попытке переопределить их будет выбрашена ошибка.
+ * <p>
+ * You cannot set the settings more than once.
+ * If you try to override them, an error will be thrown.
+ * <p>
+ *
+ * @author VoidCyborg
+ * @see ru.voidcyborg.logapi.level.LogLevel
+ * @see ru.voidcyborg.logapi.appender.Appender
+ * @see ru.voidcyborg.logapi.logger.Logger
+ * @see ru.voidcyborg.logapi.logger.LoggerGroup
+ * @see java.text.SimpleDateFormat
+ * @see java.util.Map
+ * @see java.lang.String
+ */
 public final class LoggerFactory {
 
     private static final Map<String, LoggerGroup> loggerGroups = new ConcurrentHashMap<>();
     private static volatile Appender[] appenders;
     private static volatile Settings settings;
     private static volatile LogLevel level;
-    private static volatile TimeZone zone = TimeZone.getTimeZone("Europe/Moscow");
+    private static volatile TimeZone zone = TimeZone.getTimeZone("Europe/Moscow");//Нужно, чтобы мог работать метод createCustomLoggerGroup(LogLevel level);
     private static volatile boolean initialized;
 
 
+    /**
+     * Инициализирует настройки для системы логгирования.
+     * Есть возможность получить их как из внешнего файла, так и из файла приложения.
+     * <p>
+     * Initializes settings for the logging system.
+     * It is possible to get them both from an external file and from an application file.
+     * <p>
+     * При неудаче или некорректных настройках в файле выкидывает ошибку {@code SettingsInitException}.
+     * <p>Throws an error {@code SettingsInitException} on failure or incorrect settings in the file.
+     *
+     * При повторном вызове после корректной инициализации будет выбрашена ошибка!
+     * <p>
+     * When called again after correct initialization, an error will be thrown!
+     *
+     * @param path      Путь к файлу. The path to the file.
+     * @param resources Нужно ли искать путь в ресурсах приложения или в файловой системе. Whether to look for the path in application resources or in the file system.
+     */
     public synchronized static void setSettings(String path, boolean resources) throws SettingsInitException {
         if (path == null) throw new SettingsInitException("Path to settings can't be null");
         if (initialized) throw new SettingsInitException("Settings is already initialized!");
@@ -34,6 +93,19 @@ public final class LoggerFactory {
         initialized = true;
     }
 
+    /**
+     * Возвращает настрокйи которые были получены из файла настроек.
+     * <p>
+     * Returns the settings that were received from the settings file.
+     * <p>
+     * Если настройки не инициализированы, то выкинет ошибку.
+     * <p>
+     * If the settings are not initialized, it will throw an error.
+     *
+     *
+     * @return Настройки системы логгирования. Logging system settings.
+     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     */
     public synchronized static Settings getSettings() throws SettingsInitException {
         if (settings == null || !initialized)
             throw new SettingsInitException("Log API settings not initialized properly. Settings is null");
@@ -41,12 +113,41 @@ public final class LoggerFactory {
     }
 
 
+    /**
+     * Возвращает уровень логгирования который был получен из файла настроек.
+     * <p>
+     * Returns the logging level that was obtained from the settings file.
+     * <p>
+     * Если настройки не инициализированы, то выкинет ошибку.
+     * <p>
+     * If the settings are not initialized, it will throw an error.
+     *
+     *
+     * @return Уровень логгирования из файла. Logging level from a file.
+     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     */
     public synchronized static LogLevel getLogLevel() throws SettingsInitException {
         if (level == null || !initialized)
             throw new SettingsInitException("Log API settings not initialized properly. LogLevel is null");
         return level;
     }
 
+    /**
+     * Возвращает группу логгирования с определённым именем.
+     * Группа создаётся с уровнем логгирования полученым из файла настроек.
+     * <p>
+     * Returns the logging group with the specified name.
+     * The group is created with the logging level obtained from the settings file.
+     * <p>
+     * Если настройки не инициализированы, то выкинет ошибку.
+     * <p>
+     * If the settings are not initialized, it will throw an error.
+     *
+     *
+     * @param name Имя для группы логгирования. Name for the logging group.
+     * @return Группу логгирования с настройками из файла. Logging group with settings from a file.
+     * @throws  java.lang.NullPointerException
+     */
     public synchronized static LoggerGroup getLoggerGroup(String name) throws NullPointerException {
         if (appenders == null || !initialized)
             throw new NullPointerException("Log API settings not initialized properly. Appenders is null");
@@ -54,6 +155,20 @@ public final class LoggerFactory {
         return loggerGroups.computeIfAbsent(name, s -> new LoggerGroup(level, zone).addAppenders(appenders));
     }
 
+    /**
+     * Возвращает объект с настройками системы логгирования из файла.
+     * Есть возможность получить его как из внешнего файла, так и из файла приложения.
+     * <p>
+     * Returns an object with logging system settings from a file.
+     * It is possible to get it both from an external file and from an application file.
+     * <p>
+     * При неудаче или некорректных настройках в файле выкидывает ошибку {@code SettingsInitException}.
+     * <p>Throws an error {@code SettingsInitException} on failure or incorrect settings in the file.
+     *
+     * @param path      Путь к файлу. The path to the file.
+     * @param resources Нужно ли искать путь в ресурсах приложения или в файловой системе. Whether to look for the path in application resources or in the file system.
+     * @return Настройки для системы логгирования. Settings for the logging system.
+     */
     public static Settings parseSettings(String path, boolean resources) throws SettingsInitException {
         if (path == null) throw new SettingsInitException("Path to settings can't be null");
 
@@ -101,7 +216,8 @@ public final class LoggerFactory {
      * Возвращает стандартный уровень логгирования - INFO.
      * <p>
      * Return default logging level - INFO.
-     * @return  Уровень логгирования. The logging level.
+     *
+     * @return Уровень логгирования. The logging level.
      */
     public static LogLevel getDefaultLevel() {
         return LogLevel.INFO;
@@ -122,7 +238,7 @@ public final class LoggerFactory {
      * <p>
      *
      * @param skip Количество элементов в стеке которое нужно пропустить. The number of elements on the stack to skip.
-     * @return  Класс, метод и строку в котором вызван метод, в случае неудачи null. The class, the method and the line in which the method is called, {@code new String[]{"#unknown", "#unknown", "-1"}} on failure.
+     * @return Класс, метод и строку в котором вызван метод, в случае неудачи null. The class, the method and the line in which the method is called, {@code new String[]{"#unknown", "#unknown", "-1"}} on failure.
      */
     public static String[] getClassMethodLine(int skip) {
         try {
@@ -154,7 +270,7 @@ public final class LoggerFactory {
      * <p>
      *
      * @param skip Количество элементов в стеке которое нужно пропустить. The number of elements on the stack to skip.
-     * @return  Класс в котором вызван метод, в случае неудачи null. The class in which the method is called, null on failure.
+     * @return Класс в котором вызван метод, в случае неудачи null. The class in which the method is called, null on failure.
      */
     public static Class<?> getClass(int skip) {
         try {
