@@ -1,4 +1,4 @@
 package ru.voidcyborg.logapi.appender.appenders;
 
-public class HttpAppender {
+public class HttpAppender {//TODO
 }
