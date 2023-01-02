@@ -19,6 +19,7 @@ public final class RollingFileAppender implements Appender {
 
 
     private static final String PID;
+
     static {
         String temp;
         try {
@@ -38,7 +39,6 @@ public final class RollingFileAppender implements Appender {
     private volatile String name;
     private volatile String type;
     private volatile Path path;
-
     private volatile int maxSize = 1024_000;
     private volatile int maxFiles = -1;
 
@@ -64,6 +64,22 @@ public final class RollingFileAppender implements Appender {
         settingsParsed = true;
     }
 
+    /**
+     * Данный метод предназначен для записи строки в файл.
+     * Метод не блокирующий, то что он вернул true или false не значит что строка уже записана в файл.
+     *
+     * <p>
+     * This method is for writing a string to files.
+     * The method is not blocking, the fact that it returned true or false does not mean that the line has already been written to the file.
+     * <p>
+     * Не должно быть выбрашено каких-либо исключений.
+     * <p>
+     * No exceptions should be thrown.
+     * <p>
+     *
+     * @param text Строка которую необходимо записать. The string to be appended.
+     * @return Возвращает true если строка была передана в запись в файл. Returns true if the string was passed to write to a file.
+     */
     @Override
     public synchronized boolean append(String text) {
         if (text == null) return false;
@@ -76,6 +92,7 @@ public final class RollingFileAppender implements Appender {
             String fileName;
             while (true) {
                 fileName = generateName();
+                buffer.rewind();
 
                 try {
                     if (channel == null) this.createChannel(this.path.resolve(fileName));
@@ -208,7 +225,6 @@ public final class RollingFileAppender implements Appender {
 
         result[0] = builder.reverse().toString().trim();
         if (result[0].isBlank()) throw new NullPointerException("File name is blank.");
-        ;
 
 
         if (result[1] == null) result[1] = "";
