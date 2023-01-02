@@ -15,6 +15,49 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+/**
+ * Класс {@code RollingFileAppender} предствляет из себя реализацию записи строк в ротирующиеся файлы.
+ * Его цель записывать строки в файл.
+ * <p>
+ *
+ * The {@code RollingFileAppender} class is an implementation of writing strings to rotating files.
+ * It's purpose is to write lines to a file.
+ * <p>
+ *
+ * Для записи необходимо вызвать метод {@code append(String s)}.
+ * Пример использования:
+ *<p>
+ *
+ * To write, you must call the {@code append(String s)} method.
+ * Usage example:
+ * <blockquote><pre>
+ *     String str = "abc";
+ *
+ *     Appender appender = new RollingFileAppender();
+ *     appender.parseSettings(settings);
+ *
+ *     appender.append(str);
+ * </pre></blockquote><p>
+ *
+ * Данный класс поддерживает несколько настроек:
+ * <p><b>fileName</b> - строка с шаблоном имени(пример: log.txt). Должен состоять из имени и расширения. Расширение не обязательно.
+ * A string with a name template (example: log.txt). Must consist of a name and an extension. The extension is not necessary.
+ * <p><b>maxFileSize</b> - максимальный размер 1 файла в байтах. Минимально 1024 байта.
+ * Maximum size of 1 file in bytes. Minimum 1024 bytes.
+ * <p><b>maxFiles</b> - максимальное кол-во файлов для ротирования, если 0 или меньше то будет бессконечное кол-во файлов.
+ * Maximum number of files to rotate, if 0 or less then there will be an infinite number of files.
+ * <p><b>folderPath</b> - путь к директории в которой будут генерироваться файлы.
+ * Path to the directory where files will be generated.
+ *
+ *
+ *
+ * @author  VoidCyborg
+ * @see     ru.voidcyborg.logapi.appender.Appender
+ * @see     ru.voidcyborg.logapi.logger.Logger
+ * @see     java.util.Map
+ * @see     java.lang.String
+ */
 public final class RollingFileAppender implements Appender {
 
 
@@ -45,6 +88,18 @@ public final class RollingFileAppender implements Appender {
     private volatile int index = 0;
 
 
+
+    /**
+     * Данный метод предназначен инициализации настроек для данного Appender'а.
+     * Метод блокирующий, если настройки инициализированы и метод вызван повторно будет выбрашена ошибка.
+     *
+     * <p>
+     * This method is intended to initialize the settings for this Appender.
+     * The method is blocking, if the settings are initialized and the method is called again, an error will be thrown.
+     * <p>
+     * @param settings Настройки в виде мапы. Map settings.
+     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     */
     @Override
     public synchronized void parseSettings(Map<String, String> settings) throws SettingsInitException {
         if (settings == null) throw new SettingsInitException("Settings of RollingFileAppender can't be null.");
