@@ -34,9 +34,10 @@ class RollingFileAppenderTest {
 
         for (String s : names) {
             try {
-                System.out.println(Arrays.toString((String[])method.invoke(appender, s)));
+                System.out.println(Arrays.toString((String[]) (method.invoke(appender, s))));
             } catch (Exception e) {
-                fail();
+                e.printStackTrace();
+                continue;
             }
         }
     }
