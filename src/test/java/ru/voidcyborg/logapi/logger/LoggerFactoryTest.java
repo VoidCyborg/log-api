@@ -7,19 +7,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class LoggerFactoryTest {
 
-    static {
+  /*  static {
         try {
-            LoggerFactory.setSettings("logger.settings", true);
+            LoggerFactory.setSettings(LoggerFactoryTest.class.getResourceAsStream("/assets/ru/voidcyborg/logapi/logger.settings"));
         } catch (SettingsInitException e) {
             e.printStackTrace();
         }
     }
-
+*/
 
     @Test
     void setSettings() {
         try {
-            LoggerFactory.setSettings("/assets/logapi/logger.settings", true);
+            LoggerFactory.setSettings(LoggerFactoryTest.class.getResourceAsStream("/assets/ru/voidcyborg/logapi/logger.settings"));
 
 
             Logger logger = LoggerFactory.getLoggerGroup("Security").getLogger();

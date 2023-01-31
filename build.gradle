@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'ru.voidcyborg'
-version '1.1.0'
+version '1.1.3'
 
 repositories {
     mavenCentral()
@@ -16,8 +16,28 @@ task lazyClean {
     }
 }
 
+//Javadoc and sources
+javadoc {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.encoding = "UTF-8"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
+    build.dependsOn(sourcesJar)
+}
+
+task javadocJar(type: Jar) {
+    archiveClassifier.set("javadoc")
+    from javadoc
+    build.dependsOn(javadocJar)
+}
+//Javadoc Javadoc and sources
+
+
 dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 }
 

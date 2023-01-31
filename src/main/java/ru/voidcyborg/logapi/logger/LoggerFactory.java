@@ -7,6 +7,7 @@ import ru.voidcyborg.logapi.settings.SettingsInitException;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * public void methodA(){
  *    try{
  *      String path = "/assets/project/logger.settings";
- *      LoggerFactory.setSettings(path, true);
+ *      LoggerFactory.setSettings(CurrentClass.class.getResourceAsStream(path));
  *    }catch(Exception e){
  *        System.exit(0);
  *    }
@@ -72,19 +73,47 @@ public final class LoggerFactory {
      * <p>
      * При неудаче или некорректных настройках в файле выкидывает ошибку {@code SettingsInitException}.
      * <p>Throws an error {@code SettingsInitException} on failure or incorrect settings in the file.
-     *
+     * <p>
      * При повторном вызове после корректной инициализации будет выбрашена ошибка!
      * <p>
      * When called again after correct initialization, an error will be thrown!
      *
-     * @param path      Путь к файлу. The path to the file.
-     * @param resources Нужно ли искать путь в ресурсах приложения или в файловой системе. Whether to look for the path in application resources or in the file system.
+     * @param path Путь к файлу. The path to the file.
      */
-    public synchronized static void setSettings(String path, boolean resources) throws SettingsInitException {
+    public synchronized static void setSettings(String path) throws SettingsInitException {
         if (path == null) throw new SettingsInitException("Path to settings can't be null");
         if (initialized) throw new SettingsInitException("Settings is already initialized!");
 
-        Settings parsedSettings = parseSettings(path, resources);
+        Settings parsedSettings = parseSettings(path, null);
+
+        appenders = parsedSettings.getAppenders();
+        level = parsedSettings.getLevel();
+        zone = parsedSettings.getTimeZone();
+        settings = parsedSettings;
+        initialized = true;
+    }
+
+    /**
+     * Инициализирует настройки для системы логгирования.
+     * Есть возможность получить их как из внешнего файла, так и из файла приложения.
+     * <p>
+     * Initializes settings for the logging system.
+     * It is possible to get them both from an external file and from an application file.
+     * <p>
+     * При неудаче или некорректных настройках в файле выкидывает ошибку {@code SettingsInitException}.
+     * <p>Throws an error {@code SettingsInitException} on failure or incorrect settings in the file.
+     * <p>
+     * При повторном вызове после корректной инициализации будет выбрашена ошибка!
+     * <p>
+     * When called again after correct initialization, an error will be thrown!
+     *
+     * @param stream Стрим к файлу с настройками. InputStream to file with settings
+     */
+    public synchronized static void setSettings(InputStream stream) throws SettingsInitException {
+        if (stream == null) throw new SettingsInitException("stream to settings can't be null");
+        if (initialized) throw new SettingsInitException("Settings is already initialized!");
+
+        Settings parsedSettings = parseSettings(null, stream);
 
         appenders = parsedSettings.getAppenders();
         level = parsedSettings.getLevel();
@@ -102,9 +131,8 @@ public final class LoggerFactory {
      * <p>
      * If the settings are not initialized, it will throw an error.
      *
-     *
      * @return Настройки системы логгирования. Logging system settings.
-     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     * @throws ru.voidcyborg.logapi.settings.SettingsInitException
      */
     public synchronized static Settings getSettings() throws SettingsInitException {
         if (settings == null || !initialized)
@@ -122,9 +150,8 @@ public final class LoggerFactory {
      * <p>
      * If the settings are not initialized, it will throw an error.
      *
-     *
      * @return Уровень логгирования из файла. Logging level from a file.
-     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     * @throws ru.voidcyborg.logapi.settings.SettingsInitException
      */
     public synchronized static LogLevel getLogLevel() throws SettingsInitException {
         if (level == null || !initialized)
@@ -143,10 +170,9 @@ public final class LoggerFactory {
      * <p>
      * If the settings are not initialized, it will throw an error.
      *
-     *
      * @param name Имя для группы логгирования. Name for the logging group.
      * @return Группу логгирования с настройками из файла. Logging group with settings from a file.
-     * @throws  java.lang.NullPointerException
+     * @throws java.lang.NullPointerException
      */
     public synchronized static LoggerGroup getLoggerGroup(String name) throws NullPointerException {
         if (appenders == null || !initialized)
@@ -165,16 +191,17 @@ public final class LoggerFactory {
      * При неудаче или некорректных настройках в файле выкидывает ошибку {@code SettingsInitException}.
      * <p>Throws an error {@code SettingsInitException} on failure or incorrect settings in the file.
      *
-     * @param path      Путь к файлу. The path to the file.
-     * @param resources Нужно ли искать путь в ресурсах приложения или в файловой системе. Whether to look for the path in application resources or in the file system.
+     * @param path   Путь к файлу. The path to the file.
+     * @param stream Входящий стрим к файлу. Input stream to the settings file.
      * @return Настройки для системы логгирования. Settings for the logging system.
      */
-    public static Settings parseSettings(String path, boolean resources) throws SettingsInitException {
-        if (path == null) throw new SettingsInitException("Path to settings can't be null");
+    public static Settings parseSettings(String path, InputStream stream) throws SettingsInitException {
+        if (path == null && stream == null)
+            throw new SettingsInitException("Path to settings and input stream can't be null");
 
         List<String> lines = new ArrayList<>();
-        if (resources) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(LoggerFactory.class.getResourceAsStream(path))))) {
+        if (stream != null) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     lines.add(line);
