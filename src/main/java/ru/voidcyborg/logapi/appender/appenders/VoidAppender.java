@@ -13,13 +13,13 @@ import java.util.Map;
  * The methods of this class do nothing and do not throw exceptions.
  * <p>
  *
- * @author  VoidCyborg
- * @see     ru.voidcyborg.logapi.settings.Settings
- * @see     ru.voidcyborg.logapi.appender.appenders.ConsoleAppender
- * @see     ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
- * @see     ru.voidcyborg.logapi.logger.Logger
- * @see     java.util.Map
- * @see     java.lang.String
+ * @author VoidCyborg
+ * @see ru.voidcyborg.logapi.settings.Settings
+ * @see ru.voidcyborg.logapi.appender.appenders.ConsoleAppender
+ * @see ru.voidcyborg.logapi.appender.appenders.RollingFileAppender
+ * @see ru.voidcyborg.logapi.logger.Logger
+ * @see java.util.Map
+ * @see java.lang.String
  */
 
 public class VoidAppender implements Appender {
@@ -33,7 +33,7 @@ public class VoidAppender implements Appender {
      * In this class, this method does not do any work, because the class does not support any customization.
      * <p>
      *
-     * @param   settings Карта строк-настроек {@code Map<String, String>}. Map of settings.
+     * @param settings Карта строк-настроек {@code Map<String, String>}. Map of settings.
      */
     @Override
     public void parseSettings(Map<String, String> settings) {
@@ -47,14 +47,20 @@ public class VoidAppender implements Appender {
      * since the class does not support any logging.
      * <p>
      *
-     * @param   text Значение {@code String} которое необходимо записать.<p>
-     *              The {@code String} value to write.
+     * @param text Значение {@code String} которое необходимо записать.<p>
+     *             The {@code String} value to write.
      * @return Если строка не null и не пустая возвращает true. В остальных случаях false.
      * <p> If the string is not null and not empty, returns true. Otherwise, false.
-     *
      */
     @Override
     public boolean append(String text) {
         return text != null && !text.isEmpty();
+    }
+
+    /**
+     * Ничего не делает.
+     */
+    @Override
+    public void destroy() {
     }
 }

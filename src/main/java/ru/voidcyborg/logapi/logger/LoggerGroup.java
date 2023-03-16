@@ -2,9 +2,8 @@ package ru.voidcyborg.logapi.logger;
 
 import ru.voidcyborg.logapi.appender.Appender;
 import ru.voidcyborg.logapi.level.LogLevel;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -77,7 +76,7 @@ public final class LoggerGroup {
      * In case it was not possible to determine the class that called the method, the default class logger {@code LoggerGroup} will be returned.
      * <p>
      *
-     * @return  Логгер для вызывающего класса. Logger for the calling class.
+     * @return Логгер для вызывающего класса. Logger for the calling class.
      */
     public Logger getLogger() {
         Class<?> frame = LoggerFactory.getClass(2);
@@ -93,6 +92,30 @@ public final class LoggerGroup {
         });
     }
 
+
+    /**
+     * Данный метод уничтожает группу логгирования.
+     * <p>
+     * This method destroy the logging group.
+     * <p>
+     * <p>
+     * Не должно быть выбрашено каких-либо исключений.
+     * <p>
+     * No exceptions should be thrown.
+     * <p>
+     */
+    public void destroy() {
+        try {
+            List<Appender> cashed = new ArrayList<>(this.appenders);
+            this.appenders.clear();
+
+            for (Appender appender : cashed) {
+                appender.destroy();
+            }
+        } catch (Exception ignore) {
+        }
+    }
+
     /**
      * Данный метод добавляет новый Appender в данную группу логгирования.
      * <p>
@@ -105,7 +128,7 @@ public final class LoggerGroup {
      * <p>
      *
      * @param appender Appender который необходимо добавить. Appender to be added.
-     * @return  Данную группу логгирования. This logging group.
+     * @return Данную группу логгирования. This logging group.
      */
     public LoggerGroup addAppender(Appender appender) {
         if (appender != null) {
@@ -126,7 +149,7 @@ public final class LoggerGroup {
      * <p>
      *
      * @param appenders Appender'ы которые необходимо добавить. Appenders to be added.
-     * @return  Данную группу логгирования. This logging group.
+     * @return Данную группу логгирования. This logging group.
      */
     public LoggerGroup addAppenders(Appender... appenders) {
         if (appenders == null) return this;

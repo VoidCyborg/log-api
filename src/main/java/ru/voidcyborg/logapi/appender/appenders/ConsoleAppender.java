@@ -72,4 +72,10 @@ public final class ConsoleAppender implements Appender {
         System.out.print(text);
         return true;
     }
+    /**
+     * Ничего не делает так как является прокладкой.
+     */
+    @Override
+    public void destroy(){
+    }
 }

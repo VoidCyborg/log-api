@@ -20,15 +20,15 @@ import java.util.concurrent.Executors;
  * Класс {@code RollingFileAppender} предствляет из себя реализацию записи строк в ротирующиеся файлы.
  * Его цель записывать строки в файл.
  * <p>
- *
+ * <p>
  * The {@code RollingFileAppender} class is an implementation of writing strings to rotating files.
  * It's purpose is to write lines to a file.
  * <p>
- *
+ * <p>
  * Для записи необходимо вызвать метод {@code append(String s)}.
  * Пример использования:
- *<p>
- *
+ * <p>
+ * <p>
  * To write, you must call the {@code append(String s)} method.
  * Usage example:
  * <blockquote><pre>
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  *
  *     appender.append(str);
  * </pre></blockquote><p>
- *
+ * <p>
  * Данный класс поддерживает несколько настроек:
  * <p><b>fileName</b> - строка с шаблоном имени(пример: log.txt). Должен состоять из имени и расширения. Расширение не обязательно.
  * A string with a name template (example: log.txt). Must consist of a name and an extension. The extension is not necessary.
@@ -50,13 +50,11 @@ import java.util.concurrent.Executors;
  * <p><b>folderPath</b> - путь к директории в которой будут генерироваться файлы.
  * Path to the directory where files will be generated.
  *
- *
- *
- * @author  VoidCyborg
- * @see     ru.voidcyborg.logapi.appender.Appender
- * @see     ru.voidcyborg.logapi.logger.Logger
- * @see     java.util.Map
- * @see     java.lang.String
+ * @author VoidCyborg
+ * @see ru.voidcyborg.logapi.appender.Appender
+ * @see ru.voidcyborg.logapi.logger.Logger
+ * @see java.util.Map
+ * @see java.lang.String
  */
 public final class RollingFileAppender implements Appender {
 
@@ -88,7 +86,6 @@ public final class RollingFileAppender implements Appender {
     private volatile int index = 0;
 
 
-
     /**
      * Данный метод предназначен инициализации настроек для данного Appender'а.
      * Метод блокирующий, если настройки инициализированы и метод вызван повторно будет выбрашена ошибка.
@@ -97,8 +94,9 @@ public final class RollingFileAppender implements Appender {
      * This method is intended to initialize the settings for this Appender.
      * The method is blocking, if the settings are initialized and the method is called again, an error will be thrown.
      * <p>
+     *
      * @param settings Настройки в виде мапы. Map settings.
-     * @throws  ru.voidcyborg.logapi.settings.SettingsInitException
+     * @throws ru.voidcyborg.logapi.settings.SettingsInitException
      */
     @Override
     public synchronized void parseSettings(Map<String, String> settings) throws SettingsInitException {
@@ -176,6 +174,17 @@ public final class RollingFileAppender implements Appender {
         });
 
         return true;
+    }
+
+    /**
+     * Останавливает работу executor
+     */
+    @Override
+    public synchronized void destroy() {
+        try {
+            this.executor.shutdown();
+        } catch (Exception ignore) {
+        }
     }
 
     //Безопасно пишет в канал, если не удалось, возвращает false;
